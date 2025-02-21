@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -44,6 +44,7 @@
         .btn-success { background-color: #28a745; color: white; }
         .btn-warning { background-color: #ffc107; color: white; }
         .btn-danger { background-color: #dc3545; color: white; }
+        .btn-info { background-color: #17a2b8; color: white; }
     </style>
 </head>
 <body>
@@ -54,6 +55,8 @@
             <button id="adButton2" class="btn btn-success">Watch Ad 2</button>
             <button id="adButton3" class="btn btn-warning">Watch Ad 3</button>
             <button id="adButton4" class="btn btn-danger">Watch Ad 4</button>
+            <button id="rewardedAdButton" class="btn btn-info">Watch Rewarded Ad</button>
+            <button id="rewardedPopupButton" class="btn btn-secondary">Watch Rewarded Popup</button>
         </div>
     </div>
 
@@ -63,9 +66,8 @@
     <script>
         function showAd(buttonId) {
             try {
-                // Ensure the Monetag SDK function is available and working correctly
                 if (typeof show_8812399 === "function") {
-                    show_8812399();  // Call the Monetag function for displaying inline ads
+                    show_8812399(); // Inline ad function
                     toastr.success(`You have watched ${buttonId}`);
                 } else {
                     toastr.error('Monetag SDK not loaded correctly', 'Error');
@@ -82,6 +84,71 @@
         document.getElementById('adButton2').addEventListener('click', () => showAd('Ad 2'));
         document.getElementById('adButton3').addEventListener('click', () => showAd('Ad 3'));
         document.getElementById('adButton4').addEventListener('click', () => showAd('Ad 4'));
+
+        // In-App Interstitial Ads (Auto-Trigger Ads Every 6 Minutes)
+        setTimeout(() => {
+            try {
+                if (typeof show_8812399 === "function") {
+                    show_8812399({ 
+                        type: 'inApp', 
+                        inAppSettings: { 
+                            frequency: 2, 
+                            capping: 0.1, 
+                            interval: 30, 
+                            timeout: 5, 
+                            everyPage: false 
+                        } 
+                    });
+                    console.log("In-App Interstitial Ad Triggered");
+                } else {
+                    console.error("Monetag In-App Interstitial Ads not initialized");
+                }
+            } catch (error) {
+                console.error("Error in triggering In-App Interstitial Ads:", error);
+            }
+        }, 5000); // Wait 5 seconds before triggering first ad
+
+        // Rewarded Interstitial Ad
+        document.getElementById('rewardedAdButton').addEventListener('click', () => {
+            try {
+                if (typeof show_8812399 === "function") {
+                    show_8812399().then(() => {
+                        toastr.success('You have seen the ad and earned a reward!');
+                        alert('Congratulations! You have earned a reward.');
+                        // Add reward logic here (e.g., increase user points, unlock feature, etc.)
+                    });
+                } else {
+                    toastr.error('Rewarded ad failed to load.', 'Error');
+                    console.error('Rewarded Interstitial Ad is not available.');
+                }
+            } catch (error) {
+                toastr.error('Error showing rewarded ad.', 'Error');
+                console.error(error);
+            }
+        });
+
+        // Rewarded Popup Ad
+        document.getElementById('rewardedPopupButton').addEventListener('click', () => {
+            try {
+                if (typeof show_8812399 === "function") {
+                    show_8812399('pop').then(() => {
+                        toastr.success('You have watched the Rewarded Popup Ad!');
+                        alert('You have seen an ad and earned a reward!');
+                        // Your reward logic here
+                    }).catch(e => {
+                        toastr.error('Error displaying Rewarded Popup Ad.', 'Error');
+                        console.error('Error:', e);
+                    });
+                } else {
+                    toastr.error('Rewarded Popup Ad failed to load.', 'Error');
+                    console.error('Rewarded Popup Ad is not available.');
+                }
+            } catch (error) {
+                toastr.error('Error displaying rewarded popup ad.', 'Error');
+                console.error(error);
+            }
+        });
     </script>
 </body>
 </html>
+
